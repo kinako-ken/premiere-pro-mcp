@@ -48,7 +48,9 @@ export interface ToolOperationalCapability {
   status: ToolSupportStatus;
   minimumPremiereVersion: string | null;
   authority: {
+    /** Classification label; capabilitiesForToolInvocation owns call-time requirements. */
     required: Capability;
+    /** Authority-profile discovery eligibility, not permission for every action or proof of host support. */
     enabled: boolean;
   };
   verificationBoundary: VerificationBoundary;

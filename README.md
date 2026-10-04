@@ -282,6 +282,10 @@ the [MCP for Adobe Premiere Pro setup guide for AI assistants](premiere-mcp-setu
 Attaching the guide provides assistant context; the local server and Premiere
 connector still need to be installed separately.
 
+For a private source build with manual updates, follow the
+[local fork setup guide](docs/local-fork-setup.md), including its signed connector
+and local Codex plugin route.
+
 <details>
 <summary><strong>Advanced setup: npm or source</strong></summary>
 
@@ -1365,6 +1369,7 @@ user/device authorization are implemented.
 | `PREMIERE_CONTEXT_BACKEND` | Local project-context store: `auto`, `sqlite`, `json`, or `memory` | `auto` |
 | `PREMIERE_CONTEXT_DIR` | Override the local project-context storage directory | OS application-data directory |
 | `PORT` | HTTP port (HTTP/SSE transport only) | `3000` |
+| `MCP_HTTP_HOST` | HTTP listen address; see `ALLOW_UNAUTHENTICATED` for the local/test exception | `0.0.0.0` |
 | `MCP_AUTH_TOKEN` | Operator bearer token for controlled HTTP deployments; mutually exclusive with OAuth mode | unset |
 | `MCP_OAUTH_ISSUER` | Exact trusted OAuth/OIDC token issuer URL | unset |
 | `MCP_OAUTH_JWKS_URI` | HTTPS JWKS URL used to verify access-token signatures | unset |
@@ -1372,7 +1377,7 @@ user/device authorization are implemented.
 | `MCP_PUBLIC_URL` | Canonical HTTPS origin used in protected-resource discovery | unset |
 | `MCP_OAUTH_REQUIRED_SCOPES` | Space- or comma-separated scopes required for `/mcp` | `premiere:mcp` |
 | `MCP_OAUTH_ALLOWED_SUBJECTS` | Mandatory comma-separated token-subject allowlist for the single operator bridge | unset |
-| `ALLOW_UNAUTHENTICATED` | Set to `1` only for local/test HTTP harnesses with `MCP_HTTP_HOST=127.0.0.1` or `::1`; rejected when `NODE_ENV=production` | unset |
+| `ALLOW_UNAUTHENTICATED` | Set to `1` to allow HTTP without credentials only outside `NODE_ENV=production`, with an explicit `MCP_HTTP_HOST=127.0.0.1` or `::1` bind | unset |
 | `MCP_MAX_REQUEST_BYTES` | Maximum HTTP MCP request body size | `1048576` |
 | `MCP_HEADERS_TIMEOUT_MS` | Maximum time to receive request headers | `10000` |
 | `MCP_REQUEST_TIMEOUT_MS` | Maximum time to receive an HTTP request | `60000` |
@@ -1489,10 +1494,16 @@ arbitrary-code-execution tools by design and are omitted from discovery and deni
 by default. Enable them only by setting
 `PREMIERE_MCP_CAPABILITIES=inspect,edit,export,filesystem,unsafe-script`.
 
+Multi-action tools such as `manage_proxies` are discoverable when the profile
+permits at least one action. Each call still checks its action's full authority
+requirements before running the handler. When narrowing a profile, consult the
+action and tool requirements in the [authority definitions](src/security/capabilities.ts).
+
 - **Run it locally over stdio** unless you have a specific reason not to. That's the safe default.
-- **The HTTP transport (`http-server`) requires `MCP_AUTH_TOKEN`** and refuses to start
-  without it in production. It binds `0.0.0.0` and is remotely reachable, so never expose it publicly
-  without a strong token and edge controls. `ALLOW_UNAUTHENTICATED=1` requires non-production mode and an explicit `MCP_HTTP_HOST=127.0.0.1` or `::1` loopback bind.
+- **The HTTP transport requires authentication in production.** See
+  [Environment Variables](#environment-variables) for authentication, bind settings,
+  and the local/test exception. Never expose it publicly without authentication
+  and edge controls.
 - **The HTTP transport admits only exact `/mcp` Streamable HTTP requests**, enforces
   body/socket/request limits, and applies a bounded in-process per-credential rate and concurrency limit before
   MCP request parsing or Premiere bridge work begins. It returns `413`, `429`, or `503` on containment failures. Configure an
