@@ -561,14 +561,27 @@ describe("HTTP entry point", () => {
     expect(second.statusCode).toBe(429);
   });
 
-  it("allows an explicitly unauthenticated deployment", async () => {
+  it("allows an explicitly unauthenticated loopback deployment", async () => {
     process.env.ALLOW_UNAUTHENTICATED = "1";
+    process.env.MCP_HTTP_HOST = "127.0.0.1";
     delete process.env.MCP_AUTH_TOKEN;
     process.env.NODE_ENV = "test";
     await import("../src/http-server.js");
     const res = response();
     await mocks.requestHandler!({ method: "POST", url: "/mcp", headers: {} }, res);
     expect(mocks.handleRequest).toHaveBeenCalledOnce();
+  });
+
+  it("refuses unauthenticated all-interface startup before binding or bridge cleanup", async () => {
+    process.env.ALLOW_UNAUTHENTICATED = "1";
+    process.env.MCP_HTTP_HOST = "0.0.0.0";
+    delete process.env.MCP_AUTH_TOKEN;
+    process.env.NODE_ENV = "test";
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(process, "exit").mockImplementation(() => { throw new Error("startup refused"); });
+    await expect(import("../src/http-server.js")).rejects.toThrow("startup refused");
+    expect(mocks.listen).not.toHaveBeenCalled();
+    expect(mocks.cleanup).not.toHaveBeenCalled();
   });
 
   it("refuses to start without authentication or an explicit override", async () => {

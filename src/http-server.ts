@@ -12,19 +12,8 @@
  * must be reachable from the same machine OR you must set PREMIERE_TEMP_DIR to
  * a shared volume mount that the CEP plugin also writes to.
  *
- * Environment variables:
- *   PORT               HTTP port to listen on (default: 3000)
- *   MCP_HTTP_HOST      Listen address (default: 0.0.0.0; use 127.0.0.1 for local tests)
- *   PREMIERE_TEMP_DIR  Shared temp directory for the file bridge
- *   PREMIERE_TIMEOUT_MS Command timeout in ms (default: 30000)
- *   MCP_AUTH_TOKEN     Bearer token required on every /mcp request. REQUIRED — the
- *                      server refuses to start without it, because this transport
- *                      binds 0.0.0.0 by default and can drive Premiere.
- *   MCP_OAUTH_*        Alternatively configure an OAuth issuer, JWKS URI,
- *                      audience, public URL, and required scopes for per-user auth.
- *   MCP_MAX_REQUEST_BYTES, MCP_*_TIMEOUT_MS, MCP_RATE_LIMIT_*,
- *   MCP_MAX_CONCURRENT_REQUESTS, and MCP_MAX_CONCURRENT_STREAMS bound public
- *   HTTP resource use. See README.
+ * Authentication, bind settings, the local/test exception, and resource limits
+ * are documented in README.md#environment-variables.
  */
 
 import http from "node:http";

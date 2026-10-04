@@ -1,5 +1,6 @@
 import {
   capabilityForTool,
+  isToolPermitted,
   type Capability,
   type CapabilityConfig,
 } from "./security/capabilities.js";
@@ -47,7 +48,9 @@ export interface ToolOperationalCapability {
   status: ToolSupportStatus;
   minimumPremiereVersion: string | null;
   authority: {
+    /** Classification label; capabilitiesForToolInvocation owns call-time requirements. */
     required: Capability;
+    /** Authority-profile discovery eligibility, not permission for every action or proof of host support. */
     enabled: boolean;
   };
   verificationBoundary: VerificationBoundary;
@@ -311,6 +314,7 @@ export function deriveToolOperationalCapability(
     ...(definition.operationalCapability ?? {}),
   };
   const authority = override.authority ?? capabilityForTool(name);
+  const enabled = isToolPermitted(name, capabilities);
   const local = override.backends?.length === 1 && override.backends[0] === "local"
     ? true
     : LOCAL_TOOLS.has(name);
@@ -341,7 +345,7 @@ export function deriveToolOperationalCapability(
   } else if (override.notes === undefined) {
     notes.push("Runs through the production CEP file bridge using ExtendScript.");
   }
-  if (!capabilities.capabilities.has(authority)) {
+  if (!enabled) {
     notes.push(`Disabled by the current '${capabilities.source}' authority profile.`);
   }
 
@@ -365,7 +369,7 @@ export function deriveToolOperationalCapability(
       : local ? null : minimumVersion(definition.description, usesQe, usesUxp),
     authority: {
       required: authority,
-      enabled: capabilities.capabilities.has(authority),
+      enabled,
     },
     verificationBoundary: override.verificationBoundary
       ?? verificationBoundaryFor(name, authority, local),

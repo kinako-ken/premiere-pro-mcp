@@ -31,10 +31,20 @@ describe("HTTP admission settings", () => {
     expect(readHttpAuthConfiguration({ MCP_AUTH_TOKEN: "secret", NODE_ENV: "production" })).toEqual({
       mode: "shared-token", authToken: "secret", allowUnauthenticated: false,
     });
-    expect(readHttpAuthConfiguration({ ALLOW_UNAUTHENTICATED: "1", NODE_ENV: "test" })).toEqual({
+    expect(readHttpAuthConfiguration({ ALLOW_UNAUTHENTICATED: "1", NODE_ENV: "test", MCP_HTTP_HOST: "127.0.0.1" })).toEqual({
       mode: "unauthenticated", allowUnauthenticated: true,
     });
     expect(() => readHttpAuthConfiguration({ ALLOW_UNAUTHENTICATED: "1", NODE_ENV: "production" })).toThrow("MCP_AUTH_TOKEN");
+  });
+
+  it.each([undefined, "", "0.0.0.0", "::", "192.168.1.2", "localhost", "127.0.0.1.example.com"])(
+    "rejects unauthenticated HTTP on an unspecified or non-literal-loopback host %s", (host) => {
+      expect(() => readHttpAuthConfiguration({ ALLOW_UNAUTHENTICATED: "1", MCP_HTTP_HOST: host })).toThrow("MCP_HTTP_HOST");
+    },
+  );
+
+  it.each(["127.0.0.1", "::1"])("permits an explicit development loopback bind %s", host => {
+    expect(readHttpAuthConfiguration({ ALLOW_UNAUTHENTICATED: "1", MCP_HTTP_HOST: host }).mode).toBe("unauthenticated");
   });
 
   it("requires complete HTTPS OAuth configuration and rejects ambiguous auth modes", () => {

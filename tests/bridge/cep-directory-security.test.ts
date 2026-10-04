@@ -477,7 +477,7 @@ function panelHarness(
   const context: Record<string, any> = {
     console,
     Buffer,
-    CSInterface: function CSInterface() { this.evalScript = vi.fn(); },
+    __adobe_cep__: { evalScript: vi.fn(), getSystemPath: () => "/connector" },
     document: {
       getElementById: element,
       createElement: () => element(`created-${elements.size}`),
@@ -497,6 +497,7 @@ function panelHarness(
     "utf8",
   );
   runInNewContext(securitySource, context, { filename: `${pluginDirectory}/bridge-directory-security.cjs` });
+  runInNewContext(readFileSync(join(root, pluginDirectory, "CSInterface.js"), "utf8"), context);
   const mainSource = readFileSync(join(root, pluginDirectory, "main.js"), "utf8");
   runInNewContext(mainSource, context, { filename: `${pluginDirectory}/main.js` });
   return { context, elements, timers, writeFileSync, setInterval };
