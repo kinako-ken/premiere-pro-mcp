@@ -1372,7 +1372,7 @@ user/device authorization are implemented.
 | `MCP_PUBLIC_URL` | Canonical HTTPS origin used in protected-resource discovery | unset |
 | `MCP_OAUTH_REQUIRED_SCOPES` | Space- or comma-separated scopes required for `/mcp` | `premiere:mcp` |
 | `MCP_OAUTH_ALLOWED_SUBJECTS` | Mandatory comma-separated token-subject allowlist for the single operator bridge | unset |
-| `ALLOW_UNAUTHENTICATED` | Set to `1` only for local/test HTTP harnesses; it is rejected when `NODE_ENV=production` | unset |
+| `ALLOW_UNAUTHENTICATED` | Set to `1` only for local/test HTTP harnesses with `MCP_HTTP_HOST=127.0.0.1` or `::1`; rejected when `NODE_ENV=production` | unset |
 | `MCP_MAX_REQUEST_BYTES` | Maximum HTTP MCP request body size | `1048576` |
 | `MCP_HEADERS_TIMEOUT_MS` | Maximum time to receive request headers | `10000` |
 | `MCP_REQUEST_TIMEOUT_MS` | Maximum time to receive an HTTP request | `60000` |
@@ -1492,7 +1492,7 @@ by default. Enable them only by setting
 - **Run it locally over stdio** unless you have a specific reason not to. That's the safe default.
 - **The HTTP transport (`http-server`) requires `MCP_AUTH_TOKEN`** and refuses to start
   without it in production. It binds `0.0.0.0` and is remotely reachable, so never expose it publicly
-  without a strong token and edge controls. `ALLOW_UNAUTHENTICATED=1` is limited to non-production local/test use.
+  without a strong token and edge controls. `ALLOW_UNAUTHENTICATED=1` requires non-production mode and an explicit `MCP_HTTP_HOST=127.0.0.1` or `::1` loopback bind.
 - **The HTTP transport admits only exact `/mcp` Streamable HTTP requests**, enforces
   body/socket/request limits, and applies a bounded in-process per-credential rate and concurrency limit before
   MCP request parsing or Premiere bridge work begins. It returns `413`, `429`, or `503` on containment failures. Configure an

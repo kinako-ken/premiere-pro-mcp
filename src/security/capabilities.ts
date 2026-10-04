@@ -186,6 +186,12 @@ const TOOL_CAPABILITY_REQUIREMENTS: Readonly<Record<string, readonly Capability[
 };
 
 const ACTION_CAPABILITIES: Readonly<Record<string, Readonly<Record<string, readonly Capability[]>>>> = {
+  manage_proxies: {
+    // Creation only queues an encode; attaching it is a separate project edit.
+    create: ["export", "filesystem"],
+    attach: ["edit", "filesystem"],
+    toggle: ["edit"],
+  },
   manage_project_context: {
     capture: ["inspect", "filesystem"],
     enrich: ["inspect", "filesystem"],

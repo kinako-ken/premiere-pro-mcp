@@ -164,6 +164,10 @@ export function readHttpAuthConfiguration(env: NodeJS.ProcessEnv): HttpAuthConfi
   if (authToken) return { mode: "shared-token", authToken, allowUnauthenticated: false };
 
   if (env.ALLOW_UNAUTHENTICATED === "1" && env.NODE_ENV !== "production") {
+    // Require a literal bind address, not DNS or the all-interface default.
+    if (env.MCP_HTTP_HOST !== "127.0.0.1" && env.MCP_HTTP_HOST !== "::1") {
+      throw new Error("Unauthenticated HTTP requires MCP_HTTP_HOST=127.0.0.1 or ::1.");
+    }
     return { mode: "unauthenticated", allowUnauthenticated: true };
   }
 

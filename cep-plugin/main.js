@@ -99,6 +99,8 @@ var os = nodeRequire("os");
 var https = nodeRequire("https");
 var nodeProcess = nodeRequire("process");
 var childProcess = nodeRequire("child_process");
+// Include this marker before signing a manually maintained connector.
+var manualUpdates = fs.existsSync(path.join(cs.getSystemPath(SystemPath.EXTENSION), "manual-updates"));
 var bridgeDirectorySecurity = MCPBridgeDirectorySecurity.createBridgeDirectorySecurity({
   fs: fs,
   path: path,
@@ -510,6 +512,10 @@ function restoreScheduledUpdateStatus() {
 
 function checkForUpdates() {
   latestUpdate = null;
+  if (manualUpdates) {
+    setUpdateUI("Manual updates", "Update this connector together with your local source build.", "Managed locally", true);
+    return;
+  }
   var globalInstall = os.platform() === "win32" ? getPerUserGlobalInstall() : null;
   var responseTooLarge = false;
   setUpdateUI(
@@ -620,7 +626,7 @@ function showUpdateCheckError(message) {
 }
 
 function handleUpdateClick() {
-  if (!latestUpdate) {
+  if (manualUpdates || !latestUpdate) {
     checkForUpdates();
     return;
   }
@@ -698,5 +704,6 @@ function handleUpdateClick() {
   startBridgeHeartbeat();
   log("Auto-starting bridge...");
   setTimeout(startBridge, 500);
-  if (!restoreScheduledUpdateStatus()) setTimeout(checkForUpdates, 1200);
+  if (manualUpdates) checkForUpdates();
+  else if (!restoreScheduledUpdateStatus()) setTimeout(checkForUpdates, 1200);
 })();

@@ -37,6 +37,7 @@ Read only what the task needs. Current source and release metadata beat dated sn
 | Hosted HTTP boundary | `docs/hosted-mcp-product-boundary.md` |
 | UXP 26.3 coverage | `docs/adobe-uxp-26.3-coverage.md` |
 | Claude Code develop skill | `claude-plugins/premiere-pro/skills/develop-premiere-pro-mcp/SKILL.md` |
+| Manually maintained fork installation | `docs/local-fork-setup.md` |
 
 Do not mix published-package counts with development-source counts. `docs/supported-actions.md` is the source catalog; the published npm artifact is what the website reports. In this repo the README `### Latest release:` heading anchors client version pins. A listed tool is not proof that a particular Premiere host supports it.
 
@@ -211,3 +212,10 @@ Read and follow these skills when you need the full rules, an edge case, or a le
 10. Use normal sentences for security warnings, irreversible confirmations, and steps whose order would be ambiguous as fragments. Explain in full when asked to explain. Confirm before destructive actions. After three failed fixes, name the doubtful assumption and ask one question.
 
 Off switches: `stop caveman` turns wording off. `stop adhd mode` turns the shape off. `normal mode` turns both off. Confirm in one line, then drop that style. `/caveman lite|full|ultra` changes caveman intensity for the rest of the session.
+
+## Maintaining this file
+
+Keep this file for knowledge useful to almost every future agent session in this project.
+Do not repeat what the codebase already shows; point to the authoritative file or command instead.
+Prefer rewriting or pruning existing entries over appending new ones.
+When updating this file, preserve this bar for all agents and keep entries concise.

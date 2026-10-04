@@ -477,7 +477,8 @@ function panelHarness(
   const context: Record<string, any> = {
     console,
     Buffer,
-    CSInterface: function CSInterface() { this.evalScript = vi.fn(); },
+    CSInterface: function CSInterface() { this.evalScript = vi.fn(); this.getSystemPath = () => "/connector"; },
+    SystemPath: { EXTENSION: "extension" },
     document: {
       getElementById: element,
       createElement: () => element(`created-${elements.size}`),
