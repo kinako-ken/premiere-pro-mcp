@@ -3,6 +3,7 @@ import { guardToolHandler, isToolPermitted, resolveCapabilities } from "../../sr
 import { getExportTools } from "../../src/tools/export.js";
 import { getMediaTools } from "../../src/tools/media.js";
 import { sendCommand } from "../../src/bridge/file-bridge.js";
+import { buildToolCapabilityReport } from "../../src/tool-capability-report.js";
 
 vi.mock("../../src/bridge/file-bridge.js", () => ({ sendCommand: vi.fn() }));
 
@@ -11,6 +12,22 @@ beforeEach(() => {
 });
 
 describe("CEP proxy authority", () => {
+  it.each([
+    ["export,filesystem", true],
+    ["edit,filesystem", true],
+    ["edit", true],
+    ["inspect", false],
+    ["export", false],
+    ["filesystem", false],
+  ] as const)("reports proxy availability under %s", (authority, enabled) => {
+    const config = resolveCapabilities(authority);
+    const report = buildToolCapabilityReport({ manage_proxies: getExportTools({}).manage_proxies }, config);
+    const tool = report.tools[0];
+    expect(tool.authority.enabled).toBe(enabled);
+    expect(tool.authority.enabled).toBe(isToolPermitted("manage_proxies", config));
+    expect(tool.notes.includes("Disabled by the current 'environment' authority profile.")).toBe(!enabled);
+  });
+
   it.each([
     ["create", "edit", "export"],
     ["create", "edit,filesystem", "export"],

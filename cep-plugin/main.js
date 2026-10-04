@@ -100,7 +100,8 @@ var https = nodeRequire("https");
 var nodeProcess = nodeRequire("process");
 var childProcess = nodeRequire("child_process");
 // Include this marker before signing a manually maintained connector.
-var manualUpdates = fs.existsSync(path.join(cs.getSystemPath(SystemPath.EXTENSION), "manual-updates"));
+var extensionPath = decodeURI(cs.getSystemPath("extension")).replace(os.platform() === "win32" ? /^file:\/\/\// : /^file:\/\//, "");
+var manualUpdates = fs.existsSync(path.join(extensionPath, "manual-updates"));
 var bridgeDirectorySecurity = MCPBridgeDirectorySecurity.createBridgeDirectorySecurity({
   fs: fs,
   path: path,
